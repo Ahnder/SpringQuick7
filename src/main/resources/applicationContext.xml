@@ -99,8 +99,8 @@
 	
 	<!-- Transaction 설정 -->
 	<bean id="txManager"
-		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource" />
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
 	
 	<tx:advice id="txAdvice" transaction-manager="txManager">
@@ -112,10 +112,10 @@
 	
 	<!-- txAdvice 사용 aop 설정 -->
 	<aop:config>
-		<aop:pointcut id="txPointcut" 
-					expression="execution(* com.springbook.biz..*(..))" />
+		<aop:pointcut id="allPointcut" 
+					expression="execution(* com.springbook.biz..*Impl.*(..))" />
 					
-		<aop:advisor pointcut-ref="txPointcut" advice-ref="txAdvice" />
+		<aop:advisor pointcut-ref="allPointcut" advice-ref="txAdvice" />
 	</aop:config>
 	
 	<!-- Spring과 Mybatis 연동 설정 -->
@@ -126,6 +126,16 @@
 	
 	<bean class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg ref="sqlSession" />
+	</bean>
+	
+	<!-- 스프링과 JPA 연동 설정 -->
+	<bean id="jpaVendorAdapter"
+		  class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+	
+	<bean id="entityManagerFactory"
+		  class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
 	</bean>
 
 </beans>
